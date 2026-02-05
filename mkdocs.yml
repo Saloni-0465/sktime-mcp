@@ -1,0 +1,21 @@
+site_name: sktime-mcp
+site_description: MCP server for exposing sktime estimators to LLMs
+site_author: sktime-mcp contributors
+repo_name: sktime-mcp
+
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - User Guide: user-guide.md
+  - Data Sources: data-sources.md
+  - Architecture: architecture.md
+  - Developer Guide: dev-guide.md
+  - Code Explanation: "Code Explanation.md"
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true

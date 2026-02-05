@@ -158,7 +158,7 @@ Create a single estimator instance and return a handle.
 
 ---
 
-#### 6. `instantiate_pipeline` ⭐
+#### 6. `instantiate_pipeline` 
 Create a complete pipeline from a list of components (transformers → forecaster).
 
 **Arguments:**
@@ -178,6 +178,17 @@ Create a complete pipeline from a list of components (transformers → forecaste
 **Note:** This solves the "steps problem" - you don't need to instantiate components separately!
 
 ---
+
+## 📖 Documentation
+
+Project documentation lives in `docs/` and can be served locally with MkDocs:
+
+```bash
+pip install -e ".[dev]"
+mkdocs serve
+```
+
+The MkDocs config is in `mkdocs.yml`.
 
 ### Validation
 
@@ -334,4 +345,3 @@ sktime_mcp/
 ```bash
 pytest tests/
 ```
-

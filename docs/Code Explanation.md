@@ -68,19 +68,14 @@ The codebase is organized into **5 main layers**:
   - Entry point: `sktime-mcp` command → `sktime_mcp.server:main`
   - Tool configurations (black, ruff, pytest)
 
-#### `demo_workflow.sh`
-- **Purpose**: Bash script demonstrating the complete MCP workflow
-- **What It Does**:
-  1. Lists available datasets
-  2. Discovers forecasting estimators
-  3. Validates pipeline composition
-  4. Instantiates a pipeline
-  5. Runs fit/predict
-- **Usage**: `bash demo_workflow.sh`
-
-#### `test_mcp.sh`, `test_mcp_cli.sh`, `test_pipeline_instantiation.sh`
-- **Purpose**: Shell scripts for testing MCP functionality via CLI
-- **What They Do**: Send JSON-RPC requests to the MCP server and verify responses
+#### `pyproject.toml`
+- **Purpose**: Python project configuration (PEP 518)
+- **Key Contents**:
+  - Package metadata (name, version, description)
+  - Dependencies: `mcp`, `sktime`, `pandas`, `numpy`, `scikit-learn`
+  - Optional dependencies for dev and extended features
+  - Entry point: `sktime-mcp` command → `sktime_mcp.server:main`
+  - Tool configurations (black, ruff, pytest)
 
 ---
 
@@ -416,24 +411,17 @@ Each file implements one or more MCP tools that LLMs can call.
 
 ### 📁 `docs/` - Documentation
 
-#### `SOLUTION_SUMMARY.md`
-**Purpose**: Explains how the "steps problem" was solved
+#### `architecture.md`
+- **Purpose**: High-level block diagrams explaining the data flow and adapter registry.
 
-**Problem**: `TransformedTargetForecaster` requires `steps=[("name", instance), ...]`, but LLMs can't pass Python objects via JSON.
+#### `data-sources.md`
+- **Purpose**: Detailed guide on loading data from Pandas, SQL, and various file formats.
 
-**Solution**: `instantiate_pipeline` tool accepts simple component names and builds `steps` internally.
+#### `user-guide.md`
+- **Purpose**: Information for end-users on how to use the MCP tools.
 
-#### `PIPELINE_INSTANTIATION.md`
-**Purpose**: Detailed documentation of the `instantiate_pipeline` tool
-
-#### `STEPS_ARGUMENT_HANDLING.md`
-**Purpose**: Technical explanation of how `steps` argument is constructed
-
-#### `QUICK_START_PIPELINE.md`
-**Purpose**: Quick guide for using pipelines
-
-#### `BEFORE_AFTER_PIPELINE.md`
-**Purpose**: Comparison of LLM workflow before and after pipeline support
+#### `dev-guide.md`
+- **Purpose**: Guidelines for contributors on extending the server or adding new adapters.
 
 ---
 
