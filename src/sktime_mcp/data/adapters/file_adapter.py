@@ -77,15 +77,21 @@ class FileAdapter(DataSourceAdapter):
         time_col = self.config.get("time_column")
         if time_col and time_col in df.columns:
             if self.config.get("parse_dates", True):
-                df[time_col] = pd.to_datetime(df[time_col])
+                try:
+                    df[time_col] = pd.to_datetime(df[time_col])
+                except Exception:
+                    # If date parsing fails, keep it as is or handle it
+                    pass
             df = df.set_index(time_col)
         
-        # Ensure datetime index
-        if not isinstance(df.index, pd.DatetimeIndex):
+        # Only ensure datetime index if it looks like it should be one
+        # or if we have a time_column. For RangeIndex, keep it as is.
+        if not isinstance(df.index, pd.DatetimeIndex) and time_col:
             try:
                 df.index = pd.to_datetime(df.index)
             except Exception as e:
-                raise ValueError(f"Could not convert index to datetime: {e}")
+                # If we explicitly asked for a time_column but can't convert, that's an error
+                raise ValueError(f"Could not convert time column '{time_col}' to datetime: {e}")
         
         # Sort by time
         df = df.sort_index()
@@ -93,9 +99,19 @@ class FileAdapter(DataSourceAdapter):
         # Set frequency if specified
         freq = self.config.get("frequency")
         if freq:
-            df = df.asfreq(freq)
+            try:
+                df = df.asfreq(freq)
+            except Exception:
+                pass
         
         self._data = df
+        
+        # Determine frequency for metadata
+        if isinstance(df.index, pd.DatetimeIndex):
+            freq_str = str(df.index.freq) if df.index.freq else pd.infer_freq(df.index)
+        else:
+            freq_str = "Integer"
+            
         self._metadata = {
             "source": "file",
             "path": str(path.absolute()),
@@ -103,7 +119,7 @@ class FileAdapter(DataSourceAdapter):
             "file_size_bytes": path.stat().st_size,
             "rows": len(df),
             "columns": list(df.columns),
-            "frequency": str(df.index.freq) if df.index.freq else pd.infer_freq(df.index),
+            "frequency": freq_str,
             "start_date": str(df.index.min()),
             "end_date": str(df.index.max()),
         }

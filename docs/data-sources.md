@@ -291,13 +291,24 @@ All operations return structured error information:
 }
 ```
 
-## Best Practices
+## 💡 LLM Guidelines & Best Practices
 
-1. **Always check validation results** before fitting models
-2. **Release data handles** when done to free memory
-3. **Use exogenous variables** when available for better forecasts
-4. **Specify frequency** explicitly if auto-detection fails
-5. **Handle missing values** before loading or use sktime's imputation
+When using these tools to handle user data, follow these best practices to avoid common execution errors:
+
+### 1. Column Identification
+*   **Target vs. Features**: Identify which column is the target (`y`) and which are exogenous features (`X`).
+*   **Numeric Only**: Ensure the target column contains only numeric data. Forecasting models will fail if string/categorical columns are accidentally included in `y`.
+*   **User Confirmation**: If the dataset has multiple columns and the user hasn't specified which one to forecast, **ask for clarification** instead of guessing.
+
+### 2. Strategic Loading
+*   **Use `usecols`**: When loading from CSV or Excel, use `csv_options: {"usecols": ["Column1", "Column2"]}` to load only the necessary columns. This prevents string-based columns from being accidentally passed to the model.
+*   **Time Column Mapping**: Always map the `time_column` if one exists. If it doesn't, sktime will default to a `RangeIndex`, which is often safer for simple sequences.
+
+### 3. Frequency Hurdles
+*   **Month-Start vs Month-End**: If you encounter errors like `<MonthBegin> is not supported as period frequency`, it is likely due to `statsmodels` limitations. In such cases, consider dropping the timestamp index and using a simple integer index (RangeIndex) by not specifying a `time_column`.
+
+### 4. Validation First
+*   **Status Check**: Always inspect the `validation` object returned by `load_data_source`. If `valid` is `false`, read the `errors` list to understand why the data might break the model.
 
 ## Troubleshooting
 

@@ -493,6 +493,12 @@ class Executor:
             # Convert to sktime format
             y, X = adapter.to_sktime_format(data)
             
+            # Update metadata to reflect the target and used columns
+            metadata = adapter.get_metadata().copy()
+            metadata["columns"] = [y.name if hasattr(y, 'name') and y.name else "target"]
+            if X is not None:
+                metadata["exog_columns"] = list(X.columns)
+            
             # Generate handle
             data_handle = f"data_{uuid.uuid4().hex[:8]}"
             
@@ -500,7 +506,7 @@ class Executor:
             self._data_handles[data_handle] = {
                 "y": y,
                 "X": X,
-                "metadata": adapter.get_metadata(),
+                "metadata": metadata,
                 "validation": validation_report,
                 "config": config,  # Store config for reference
             }

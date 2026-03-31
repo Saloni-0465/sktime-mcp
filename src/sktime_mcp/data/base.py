@@ -92,6 +92,21 @@ class DataSourceAdapter(ABC):
             else:
                 y = data.iloc[:, 0]
                 X = data.iloc[:, 1:]
+                
+                # Add a guideline warning if we're defaulting with multiple columns
+                if not hasattr(self, '_metadata') or self._metadata is None:
+                    self._metadata = {}
+                    
+                if "validation" not in self._metadata:
+                    self._metadata["validation"] = {"valid": True, "errors": [], "warnings": []}
+                
+                # Ensure it's a dict and has warnings list
+                val = self._metadata["validation"]
+                if isinstance(val, dict) and "warnings" in val:
+                    val["warnings"].append(
+                        f"Target column not specified. Defaulting to first column '{data.columns[0]}'. "
+                        "If this is a time index or feature, please specify 'target_column' in config."
+                    )
         
         return y, X
     

@@ -48,38 +48,48 @@ class PandasAdapter(DataSourceAdapter):
             if time_col not in df.columns:
                 raise ValueError(f"Time column '{time_col}' not found in data")
             df = df.set_index(time_col)
-        elif not isinstance(df.index, pd.DatetimeIndex):
+        elif not isinstance(df.index, (pd.DatetimeIndex, pd.RangeIndex, pd.Index)):
             # Try to detect time column
             time_col = self._detect_time_column(df)
             if time_col:
                 df = df.set_index(time_col)
         
-        # Ensure datetime index
-        if not isinstance(df.index, pd.DatetimeIndex):
+        # Only ensure datetime index if it's already specified or looks like one
+        if not isinstance(df.index, pd.DatetimeIndex) and time_col:
             try:
                 df.index = pd.to_datetime(df.index)
             except Exception as e:
-                raise ValueError(f"Could not convert index to datetime: {e}")
+                raise ValueError(f"Could not convert time column '{time_col}' to datetime: {e}")
         
-        # Sort by time
+        # Sort by index
         df = df.sort_index()
         
         # Infer or set frequency
         freq = self.config.get("frequency")
         if freq:
-            df = df.asfreq(freq)
-        elif df.index.freq is None:
+            try:
+                df = df.asfreq(freq)
+            except Exception:
+                pass
+        elif isinstance(df.index, pd.DatetimeIndex) and df.index.freq is None:
             # Try to infer frequency
             inferred_freq = pd.infer_freq(df.index)
             if inferred_freq:
                 df = df.asfreq(inferred_freq)
         
         self._data = df
+        
+        # Determine frequency for metadata
+        if isinstance(df.index, pd.DatetimeIndex):
+            freq_str = str(df.index.freq) if df.index.freq else pd.infer_freq(df.index)
+        else:
+            freq_str = "Integer"
+
         self._metadata = {
             "source": "pandas",
             "rows": len(df),
             "columns": list(df.columns),
-            "frequency": str(df.index.freq) if df.index.freq else pd.infer_freq(df.index),
+            "frequency": freq_str,
             "start_date": str(df.index.min()),
             "end_date": str(df.index.max()),
             "missing_values": df.isnull().sum().to_dict(),
@@ -112,9 +122,14 @@ class PandasAdapter(DataSourceAdapter):
         errors = []
         warnings = []
         
-        # Check for datetime index
-        if not isinstance(data.index, pd.DatetimeIndex):
-            errors.append("Index must be DatetimeIndex for time series forecasting")
+        # Check for sktime-compatible index
+        if not isinstance(data.index, (pd.DatetimeIndex, pd.RangeIndex, pd.PeriodIndex, pd.Index)):
+            errors.append("Index must be DatetimeIndex, PeriodIndex, or RangeIndex for sktime forecasting")
+        
+        # Additional check: if it's a generic Index, ensure it's at least numeric or string-period-like
+        if isinstance(data.index, pd.Index) and not isinstance(data.index, (pd.DatetimeIndex, pd.RangeIndex, pd.PeriodIndex)):
+            if not (pd.api.types.is_integer_dtype(data.index) or pd.api.types.is_float_dtype(data.index)):
+                warnings.append("Index is not DatetimeIndex or RangeIndex. sktime may have issues if it's not numeric or period-like.")
         
         # Check for empty data
         if len(data) == 0:

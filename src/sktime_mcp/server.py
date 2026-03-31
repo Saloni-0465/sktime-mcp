@@ -275,13 +275,19 @@ async def list_tools() -> List[Tool]:
         ),
         Tool(
             name="load_data_source",
-            description="Load data from various sources (pandas DataFrame, SQL database, CSV/Excel/Parquet file, Web URL)",
+            description=(
+                "Load data from various sources. GUIDELINES: "
+                "1. NEVER assume a column is a time index (like 'Month' or 'Date') unless the user explicitly tells you to use it as the index. "
+                "2. ALWAYS specify 'target_column' if the user mentions a specific variable to forecast (e.g., 'Use Sales as target'). "
+                "3. By default, sktime-mcp treats the first column as target; if the first column is 'Month', this is likely WRONG. "
+                "4. For non-standard date formats (e.g., '1-01'), omit 'time_column' to use an integer index unless you can handle the format."
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "config": {
                         "type": "object",
-                        "description": "Data source configuration with 'type' key (pandas, sql, file, url) and type-specific options",
+                        "description": "Data source configuration. Must include 'type' (pandas, sql, file, url).",
                     },
                 },
                 "required": ["config"],
@@ -294,7 +300,12 @@ async def list_tools() -> List[Tool]:
         ),
         Tool(
             name="fit_predict_with_data",
-            description="Fit an estimator and generate predictions using custom data (not demo datasets)",
+            description=(
+                "Fit an estimator and generate predictions using custom data. GUIDELINES: "
+                "1. BEFORE calling this, check 'list_data_handles' or 'load_data_source' output. "
+                "2. If the metadata contains warnings about default target columns or column ambiguity, "
+                "STOP and re-load the data with explicit 'target_column' and 'time_column' mapping."
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
