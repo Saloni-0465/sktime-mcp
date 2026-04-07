@@ -19,7 +19,7 @@ def list_estimators_tool(
 
     Args:
         task: Filter by task type. Options: "forecasting", "classification",
-              "regression", "transformation", "clustering"
+              "regression", "transformation", "clustering", "detection"
         tags: Filter by capability tags. Example: {"capability:pred_int": True}
         limit: Maximum number of results to return (default: 50)
 

@@ -73,7 +73,7 @@ Add to your Claude Desktop config (`~/.config/claude/claude_desktop_config.json`
 Discover estimators by task type and capability tags.
 
 **Arguments:**
-- `task` (optional): Task type filter (`"forecasting"`, `"classification"`, `"regression"`, `"transformation"`, `"clustering"`)
+- `task` (optional): Task type filter (`"forecasting"`, `"classification"`, `"regression"`, `"transformation"`, `"clustering"`, `"detection"`)
 - `tags` (optional): Filter by capability tags (e.g., `{"capability:pred_int": true}`)
 - `limit` (optional): Maximum results (default: 50)
 
