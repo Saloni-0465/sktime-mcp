@@ -96,13 +96,38 @@ List all available data source types.
 - `sources` (list): Available source types
 - `descriptions` (dict): Description for each source
 
-### `list_data_handles`
+### `list_available_data`
 
-List all currently loaded data handles.
+Lists demo dataset names and/or loaded data handles (same information as the former `list_datasets` plus `list_data_handles`, in one tool).
+
+**Arguments (optional):**
+- `is_demo` (boolean):
+  - `true` — only system demo dataset names
+  - `false` — only active data handles (from `load_data_source`, etc.)
+  - omit — return both
+
+**Examples (MCP tool calls):**
+
+Demos only:
+```json
+{"tool": "list_available_data", "arguments": {"is_demo": true}}
+```
+
+Active handles only:
+```json
+{"tool": "list_available_data", "arguments": {"is_demo": false}}
+```
+
+Both demos and handles:
+```json
+{"tool": "list_available_data", "arguments": {}}
+```
 
 **Returns:**
-- `count` (int): Number of loaded data handles
-- `handles` (list): List of data handle information
+- `success` (bool)
+- `system_demos` (list): Demo dataset name strings (e.g. `airline`, `lynx`, …)
+- `active_handles` (list): Same shape as before for each handle: `handle`, `metadata`, `validation`
+- `total` (int): `len(system_demos) + len(active_handles)` for this response (with `is_demo: false`, this is the handle count)
 
 ### `release_data_handle`
 
