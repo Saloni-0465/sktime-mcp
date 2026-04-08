@@ -262,27 +262,12 @@ Persist a fitted estimator or pipeline handle to a local filesystem path using `
 
 ### Datasets
 
-#### 10. `list_available_data`
-List system demo datasets and/or active user-loaded data handles in one response (replaces `list_datasets` and `list_data_handles`).
+#### 10. `list_datasets`
+List all available demo datasets for testing and experimentation.
 
-**Arguments (optional):**
-- `is_demo` (boolean): Filter what is returned.
-  - `true` — only built-in demo dataset names.
-  - `false` — only active data handles from `load_data_source` (and similar).
-  - omit — both demos and handles.
+**Arguments:** None
 
-**Examples:**
-```json
-{}
-```
-```json
-{"is_demo": true}
-```
-```json
-{"is_demo": false}
-```
-
-**Returns:** For example `{"success": true, "system_demos": ["airline", "sunspots", "lynx", "shampoo", ...], "active_handles": [{"handle": "...", "metadata": {...}, "validation": {...}}, ...], "total": <int>}`. The `total` is the sum of `system_demos` and `active_handles` lengths included in that response (when `is_demo` is `false`, it is the number of handles).
+**Returns:** `{"success": true, "datasets": ["airline", "sunspots", "lynx", "shampoo", ...]}`
 
 ---
 
