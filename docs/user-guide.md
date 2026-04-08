@@ -76,12 +76,24 @@ The `sktime-mcp` server exposes a suite of tools designed for Large Language Mod
 {"tool": "list_estimators", "arguments": {"task": "forecasting", "limit": 5}}
 ```
 
-**Step 3: Instantiate & Run**
+**Step 3: Instantiate the Estimator**
+```json
+{
+  "tool": "instantiate_estimator",
+  "arguments": {
+    "estimator": "NaiveForecaster"
+  }
+}
+```
+Returns a handle, e.g. `{"success": true, "handle": "est_abc123", ...}`.  
+Use the returned `handle` value in the next step as `estimator_handle`.
+
+**Step 4: Fit & Predict**
 ```json
 {
   "tool": "fit_predict",
   "arguments": {
-    "estimator_handle": "est_id_from_step_2",
+    "estimator_handle": "est_abc123",
     "dataset": "airline",
     "horizon": 12
   }
