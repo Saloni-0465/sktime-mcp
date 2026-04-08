@@ -363,7 +363,7 @@ async def list_tools() -> list[Tool]:
             name="fit_predict_with_data",
             description=(
                 "Fit an estimator and generate predictions using custom data. GUIDELINES: "
-                "1. BEFORE calling this, check 'list_data_handles' or 'load_data_source' output. "
+                "1. BEFORE calling this, check 'list_available_data' (with is_demo=false) or 'load_data_source' output. "
                 "2. If the metadata contains warnings about default target columns or column ambiguity, "
                 "STOP and re-load the data with explicit 'target_column' and 'time_column' mapping."
             ),
