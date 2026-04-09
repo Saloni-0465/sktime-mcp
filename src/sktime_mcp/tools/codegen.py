@@ -44,6 +44,24 @@ def _get_estimator_module(estimator_name: str) -> Optional[str]:
     return None
 
 
+def _resolve_task(
+    estimator_name: str, is_pipeline: bool, params: dict[str, Any]
+) -> str:
+    """Determine the task type for an estimator or pipeline handle."""
+    registry = get_registry()
+    if is_pipeline:
+        components = params.get("components", [])
+        if components:
+            last = registry.get_estimator_by_name(components[-1])
+            if last:
+                return last.task
+    else:
+        node = registry.get_estimator_by_name(estimator_name)
+        if node:
+            return node.task
+    return "forecasting"
+
+
 def _generate_single_estimator_code(
     estimator_name: str, params: dict[str, Any], var_name: str = "model"
 ) -> dict[str, Any]:
@@ -238,7 +256,18 @@ def export_code_tool(
 
     # Optionally add fit/predict example
     if include_fit_example:
-        example_code = f"""
+        task = _resolve_task(estimator_name, is_pipeline, params)
+        if task in ("classification", "regression"):
+            example_code = f"""
+
+# Example usage:
+# Prepare your panel data X and labels y, then:
+# {var_name}.fit(X, y)
+# predictions = {var_name}.predict(X_test)
+# print(predictions)
+"""
+        elif task == "forecasting":
+            example_code = f"""
 
 # Example usage:
 # Load data
@@ -252,6 +281,12 @@ y = load_airline()
 fh = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # 12-step ahead forecast
 predictions = {var_name}.predict(fh=fh)
 print(predictions)
+"""
+        else:
+            example_code = f"""
+
+# Example usage:
+# See sktime docs for the '{task}' task API.
 """
         code += example_code
 
